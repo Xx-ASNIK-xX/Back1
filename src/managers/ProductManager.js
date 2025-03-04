@@ -1,55 +1,76 @@
-// Importa el módulo de sistema de archivos 'fs' para manejar operaciones de archivos
 import fs from "fs";
 
-// Definición de la clase ProductManager
 class ProductManager {
-    // Constructor que inicializa la ruta del archivo donde se almacenan los productos
     constructor(filePath) {
         this.path = filePath;
     }
 
-    // Método para obtener todos los productos
     async getProducts() {
-        if (!fs.existsSync(this.path)) return [];
-        const data = await fs.promises.readFile(this.path, "utf-8");
-        return data.trim() ? JSON.parse(data) : []; // Si está vacío, devuelve []
+        try {
+            if (!fs.existsSync(this.path)) return [];
+            const data = await fs.promises.readFile(this.path, "utf-8");
+            return data.trim() ? JSON.parse(data) : [];
+        } catch (error) {
+            console.error("Error al obtener productos:", error);
+            return [];
+        }
     }
 
-    // Método para obtener un producto por su ID
     async getProductById(id) {
         const products = await this.getProducts();
         return products.find(p => p.id === id) || null;
     }
 
-    // Método para agregar un nuevo producto
     async addProduct(product) {
         const products = await this.getProducts();
+        
+        // Validar que el código sea único
+        if (products.some(p => p.code === product.code)) {
+            throw new Error("El código del producto ya existe");
+        }
+
         const maxId = products.length ? Math.max(...products.map(p => p.id)) : 0;
-        product.id = maxId + 1; // Asegura que el ID siempre sea único y creciente
-    
+        product.id = maxId + 1;
+
         products.push(product);
         await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
         return product;
     }
 
-    // Método para actualizar un producto existente
     async updateProduct(id, updatedFields) {
+    try {
         const products = await this.getProducts();
-        const index = products.findIndex(p => p.id === id);
-        if (index === -1) return null;
-        products[index] = { ...products[index], ...updatedFields, id };
-        await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-        return products[index];
-    }
+        const productIndex = products.findIndex(p => p.id === id);
 
-    // Método para eliminar un producto por su ID
-    async deleteProduct(id) {
-        let products = await this.getProducts();
-        products = products.filter(p => p.id !== id);
+        if (productIndex === -1) {
+            throw new Error("Producto no encontrado");
+        }
+
+        // Actualizar campos sin modificar el ID
+        products[productIndex] = { ...products[productIndex], ...updatedFields, id };
+
         await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-        return true;
+        return products[productIndex];
+    } catch (error) {
+        throw new Error("Error al actualizar producto: " + error.message);
     }
 }
 
-// Exporta una instancia de ProductManager inicializada con la ruta al archivo de productos
-export default new ProductManager("src/data/products.json")
+    async deleteProduct(id) {
+        try {
+            const products = await this.getProducts();
+            const updatedProducts = products.filter(p => p.id !== id);
+
+            if (products.length === updatedProducts.length) {
+                throw new Error("Producto no encontrado");
+            }
+
+            await fs.promises.writeFile(this.path, JSON.stringify(updatedProducts, null, 2));
+            return { success: true, message: "Producto eliminado correctamente" };
+        } catch (error) {
+            throw new Error("Error al eliminar producto: " + error.message);
+        }
+    }
+}
+
+export default new ProductManager("src/data/products.json");
