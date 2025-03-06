@@ -56,21 +56,21 @@ class ProductManager {
     }
 }
 
-    async deleteProduct(id) {
-        try {
-            const products = await this.getProducts();
-            const updatedProducts = products.filter(p => p.id !== id);
+async deleteProduct(productId) {
+    try {
+        const products = await this.getProducts();
+        const updatedProducts = products.filter(p => p.id !== productId);
 
-            if (products.length === updatedProducts.length) {
-                throw new Error("Producto no encontrado");
-            }
-
-            await fs.promises.writeFile(this.path, JSON.stringify(updatedProducts, null, 2));
-            return { success: true, message: "Producto eliminado correctamente" };
-        } catch (error) {
-            throw new Error("Error al eliminar producto: " + error.message);
+        if (products.length === updatedProducts.length) {
+            throw new Error("Producto no encontrado");
         }
+
+        await fs.promises.writeFile(this.path, JSON.stringify(updatedProducts, null, 2));
+        return { success: true, message: "Producto eliminado correctamente" };
+    } catch (error) {
+        throw new Error("Error al eliminar producto: " + error.message);
     }
+}
 }
 
 export default new ProductManager("src/data/products.json");

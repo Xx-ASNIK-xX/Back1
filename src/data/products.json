@@ -54,47 +54,5 @@
       "img2.jpg"
     ],
     "id": 4
-  },
-  {
-    "title": "123123123",
-    "description": "Trail / 12312312312",
-    "code": "123",
-    "price": 17370000,
-    "status": true,
-    "stock": 4,
-    "category": "motos",
-    "thumbnails": [
-      "img1.jpg",
-      "img2.jpg"
-    ],
-    "id": 5
-  },
-  {
-    "title": "pedo",
-    "description": "Trail / 12312312312",
-    "code": "1234",
-    "price": 151,
-    "status": true,
-    "stock": 4,
-    "category": "motos",
-    "thumbnails": [
-      "img1.jpg",
-      "img2.jpg"
-    ],
-    "id": 6
-  },
-  {
-    "title": "Producto actualizado",
-    "description": "Descripción del producto",
-    "code": "aABC123",
-    "price": 150,
-    "status": true,
-    "stock": 10,
-    "category": "Categoría de prueba",
-    "thumbnails": [
-      "imagen1.jpg",
-      "imagen2.jpg"
-    ],
-    "id": 7
   }
 ]
