@@ -8,26 +8,32 @@
 <body>
     <h1>Productos en Tiempo Real</h1>
 
-    <!-- Formulario para crear productos -->
-    <form id="createProductForm">
-        <input type="text" name="title" placeholder="Título" required>
-        <input type="number" name="price" placeholder="Precio" required>
-        <button type="submit">Crear Producto</button>
-    </form>
+<!-- Formulario para crear productos -->
+<form id="createProductForm">
+    <input type="text" name="title" placeholder="Título" required><br>
+    <input type="text" name="description" placeholder="Descripción" required><br>
+    <input type="text" name="code" placeholder="Código" required><br>
+    <input type="number" name="price" placeholder="Precio" required><br>
+    <label>
+        <input type="checkbox" name="status" checked> Disponible
+    </label><br>
+    <input type="number" name="stock" placeholder="Stock" required><br>
+    <input type="text" name="category" placeholder="Categoría" required><br>
+    <input type="text" name="thumbnails" placeholder="Imágenes (opcional, separadas por comas)"><br>
+    <button type="submit">Crear Producto</button>
+</form>
 
-    <!-- Lista de productos -->
-    <ul id="productList">
-        {{#each products}}
-            <li>
-                {{this.title}} - ${{this.price}}
-                <button onclick="deleteProduct('{{this.id}}')">Eliminar</button>
-            </li>
-        {{/each}}
-    </ul>
+<!-- Lista de productos -->
+<ul id="productList">
+    {{#each products}}
+        <li>
+            {{this.title}} - ${{this.price}}
+            <button onclick="deleteProduct('{{this.id}}')">Eliminar</button>
+        </li>
+    {{/each}}
+</ul>
 
-    <!-- Script de Socket.IO -->
-    <script src="/socket.io/socket.io.js"></script>
-    <!-- Script para manejar WebSockets -->
-    <script src="/js/realTimeProducts.js"></script>
-</body>
-</html>
+<!-- Script de Socket.IO -->
+<script src="/socket.io/socket.io.js"></script>
+<!-- Script para manejar WebSockets -->
+<script src="/js/realTimeProducts.js"></script>

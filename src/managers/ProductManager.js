@@ -21,20 +21,28 @@ class ProductManager {
         return products.find(p => p.id === id) || null;
     }
 
-    async addProduct(product) {
-        const products = await this.getProducts();
-        
-        // Validar que el código sea único
-        if (products.some(p => p.code === product.code)) {
-            throw new Error("El código del producto ya existe");
+    async addProduct(productData) {
+        try {
+            const products = await this.getProducts();
+    
+            // Generar un ID único
+            const generateUniqueId = () => {
+                const maxId = products.length ? Math.max(...products.map(p => p.id)) : 0;
+                return maxId + 1;
+            };
+    
+            // Agregar el producto con un ID único
+            const newProduct = {
+                id: generateUniqueId(), // ID único
+                ...productData, // Resto de los campos
+            };
+    
+            products.push(newProduct);
+            await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
+            return newProduct;
+        } catch (error) {
+            throw new Error("Error al agregar producto: " + error.message);
         }
-
-        const maxId = products.length ? Math.max(...products.map(p => p.id)) : 0;
-        product.id = maxId + 1;
-
-        products.push(product);
-        await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-        return product;
     }
 
     async updateProduct(id, updatedFields) {

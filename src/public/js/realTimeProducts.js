@@ -1,11 +1,5 @@
 const socket = io();
 
-// Función para eliminar un producto
-window.deleteProduct = (productId) => {
-    console.log("Intentando eliminar producto con ID:", productId); // Depuración
-    socket.emit("deleteProduct", productId);
-};
-
 // Escucha el evento "updateProducts" para actualizar la lista
 socket.on("updateProducts", (products) => {
     const productList = document.getElementById("productList");
@@ -24,9 +18,35 @@ socket.on("updateProducts", (products) => {
 // Envía el formulario para crear un producto
 document.getElementById("createProductForm").addEventListener("submit", (e) => {
     e.preventDefault();
+
+    // Obtener los datos del formulario
     const title = e.target.title.value;
-    const price = e.target.price.value;
-    socket.emit("createProduct", { title, price });
+    const description = e.target.description.value;
+    const code = e.target.code.value;
+    const price = parseFloat(e.target.price.value);
+    const status = e.target.status.checked;
+    const stock = parseInt(e.target.stock.value);
+    const category = e.target.category.value;
+    const thumbnails = e.target.thumbnails.value
+        ? e.target.thumbnails.value.split(",").map((url) => url.trim())
+        : [];
+
+    // Crear el objeto del producto
+    const productData = {
+        title,
+        description,
+        code,
+        price,
+        status,
+        stock,
+        category,
+        thumbnails,
+    };
+
+    // Enviar el producto al servidor
+    socket.emit("createProduct", productData);
+
+    // Limpiar el formulario
     e.target.reset();
 });
 
