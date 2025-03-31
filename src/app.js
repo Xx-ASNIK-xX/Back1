@@ -1,67 +1,82 @@
 import express from "express";
+import { Server } from "socket.io";
+import { engine } from "express-handlebars";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import productsRouter from "./routes/products.routes.js";
 import cartsRouter from "./routes/carts.routes.js";
+import viewsRouter from "./routes/views.routes.js";
+import socketEvents from "./websocket/socket.js";
 
-import { createServer } from "http";
-import { Server } from "socket.io";
-import handlebars from "express-handlebars";
-import viewsRouter from "./routes/views.routes.js"; // Router para las vistas
-import productManager from "./managers/ProductManager.js"; // Importa el manager de productos
+// Configuración de __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+// Configuración de dotenv
+dotenv.config();
 
 const app = express();
-const httpServer = createServer(app);
-const io = new Server(httpServer);
-
-app.use(express.json()); // Para leer JSON en requests
-
-// Agregar la ruta para manejar GET /
-app.get('/', (req, res) => {
-    res.send('¡Primera Entrega!');
-});
-
-app.use("/api/products", productsRouter);
-app.use("/api/carts", cartsRouter);
+const PORT = process.env.PORT || 8080;
 
 // Configuración de Handlebars
-app.engine("handlebars", handlebars.engine());
-app.set("views", "./src/views");
+app.engine("handlebars", engine({
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true,
+        allowProtoMethodsByDefault: true,
+    },
+    helpers: {
+        eq: function (a, b) {
+            return a === b;
+        },
+        multiply: function(a, b) {
+            return a * b;
+        },
+        cartTotal: function(products) {
+            return products.reduce((total, item) => {
+                return total + (item.product.price * item.quantity);
+            }, 0);
+        },
+        formatPrice: function(price) {
+            return new Intl.NumberFormat('es-CO', { 
+                style: 'currency', 
+                currency: 'COP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+    }
+}));
 app.set("view engine", "handlebars");
+app.set("views", path.join(__dirname, "views"));
 
-// Middleware para archivos estáticos
-app.use(express.static("./src/public"));
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-// Router para las vistas
+// Rutas
+app.use("/api/products", productsRouter);
+app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
 
-// WebSocket
-io.on("connection", (socket) => {
-    console.log("Nuevo cliente conectado");
+// Conexión a MongoDB
+try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log("Conectado a MongoDB");
+} catch (error) {
+    console.error("Error al conectar a MongoDB:", error);
+}
 
-    // Escucha eventos para crear o eliminar productos
-    socket.on("createProduct", async (productData) => {
-        try {
-            const newProduct = await productManager.addProduct(productData);
-            io.emit("updateProducts", await productManager.getProducts());
-        } catch (error) {
-            console.error("Error al crear producto:", error.message);
-        }
-    });
-
-    // Escucha eventos para eliminar productos
-    socket.on("deleteProduct", async (productId) => {
-      try {
-          console.log("Eliminando producto con ID:", productId); // Depuración
-          await productManager.deleteProduct(Number(productId)); // Convierte el ID a número
-          io.emit("updateProducts", await productManager.getProducts());
-      } catch (error) {
-          console.error("Error al eliminar producto:", error.message);
-      }
-    });
-});
-
-// Iniciar servidor
-const PORT = 8080;
-httpServer.listen(PORT, () => {
+// Iniciar servidor HTTP
+const httpServer = app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
+// Configurar Socket.IO
+const io = new Server(httpServer);
+socketEvents(io);
+
+export default app;
