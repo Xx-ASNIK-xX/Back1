@@ -69,14 +69,10 @@ router.get('/carts/:cid', async (req, res) => {
             return res.status(404).render('error', { error: 'Carrito no encontrado' });
         }
 
-        // Calcular el total del carrito
-        const total = cart.products.reduce((sum, item) => {
-            return sum + (item.product.price * item.quantity);
-        }, 0);
-
-        res.render('cart', { cart, total });
+        res.render('cart', { cart });
     } catch (error) {
-        res.status(500).render('error', { error: error.message });
+        console.error('Error en /carts/:cid:', error);
+        res.status(500).render('error', { error: 'Error al cargar el carrito' });
     }
 });
 

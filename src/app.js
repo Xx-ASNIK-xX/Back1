@@ -32,10 +32,13 @@ app.engine("handlebars", engine({
             return a === b;
         },
         multiply: function(a, b) {
+            if (!a || !b) return 0;
             return a * b;
         },
         cartTotal: function(products) {
+            if (!Array.isArray(products)) return 0;
             return products.reduce((total, item) => {
+                if (!item || !item.product || !item.product.price || !item.quantity) return total;
                 return total + (item.product.price * item.quantity);
             }, 0);
         },

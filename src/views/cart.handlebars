@@ -29,6 +29,7 @@
                 </thead>
                 <tbody>
                     {{#each cart.products}}
+                    {{#if this.product}}
                     <tr>
                         <td>
                             <div class="d-flex align-items-center">
@@ -56,6 +57,16 @@
                             </button>
                         </td>
                     </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            <em>Producto no disponible</em>
+                            <button class="btn btn-danger btn-sm ms-2" onclick="removeProduct('{{this._id}}')">
+                                Eliminar del carrito
+                            </button>
+                        </td>
+                    </tr>
+                    {{/if}}
                     {{/each}}
                 </tbody>
                 <tfoot>
