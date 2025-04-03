@@ -40,15 +40,22 @@ scripts/
 - **Uso**: `node src/scripts/images/updateImages.js`
 - **Descripción**: Actualiza las referencias de imágenes en los productos
 
-### updateMotorcyclesImages.js
-- **Propósito**: Actualiza imágenes específicas de motocicletas
-- **Uso**: `node src/scripts/images/updateMotorcyclesImages.js`
-- **Descripción**: Actualiza las imágenes de motocicletas específicas
-
 ### updateRemainingBikes.js
 - **Propósito**: Actualiza imágenes de motos pendientes
 - **Uso**: `node src/scripts/images/updateRemainingBikes.js`
-- **Descripción**: Actualiza las imágenes de las motocicletas que faltan
+- **Descripción**: Script específico para actualizar las imágenes de motos que faltan en la base de datos
+- **Funcionalidades**:
+  - Busca motos por su código específico
+  - Actualiza las imágenes usando archivos locales
+  - Maneja múltiples motos en una sola ejecución
+  - Verifica y actualiza las rutas de imágenes en MongoDB
+  - Soporta diferentes formatos de imagen (jpg, jpeg, png, webp)
+- **Motos Soportadas**:
+  - Yamaha YZF-R1M
+  - BMW S1000RR
+  - KTM 1290 Super Duke R Evo
+  - Suzuki Hayabusa
+  - Y otras motos específicas del catálogo
 
 ## Scripts de Utilidad (/utils)
 

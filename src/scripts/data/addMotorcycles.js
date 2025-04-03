@@ -13,8 +13,7 @@ const motorcycles = [
         stock: 5,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/c6f5c9/honda-cbr1000rr-r-2020-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/c6f5c9/honda-cbr1000rr-r-2020-2/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -25,8 +24,7 @@ const motorcycles = [
         stock: 3,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/c6e9d5/yamaha-yzf-r1m-2020-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/c6e9d5/yamaha-r1m-2020-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -37,8 +35,7 @@ const motorcycles = [
         stock: 4,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/7a9119/ducati-panigale-v4-2020-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/7a9119/ducati-panigale-v4-2020-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -49,8 +46,7 @@ const motorcycles = [
         stock: 6,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/a89119/kawasaki-ninja-zx-10r-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/a89119/kawasaki-ninja-zx-10r-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -61,8 +57,7 @@ const motorcycles = [
         stock: 4,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/b89119/bmw-s1000rr-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/b89119/bmw-s1000rr-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -73,8 +68,7 @@ const motorcycles = [
         stock: 3,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/d89119/aprilia-rsv4-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/d89119/aprilia-rsv4-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -85,8 +79,7 @@ const motorcycles = [
         stock: 5,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/e89119/suzuki-gsx-r1000r-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/e89119/suzuki-gsx-r1000r-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -97,8 +90,7 @@ const motorcycles = [
         stock: 2,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/f89119/mv-agusta-f4-rc-2020-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/f89119/mv-agusta-f4-rc-2020-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -109,8 +101,7 @@ const motorcycles = [
         stock: 3,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/g89119/ktm-rc-8c-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/g89119/ktm-rc-8c-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -121,8 +112,7 @@ const motorcycles = [
         stock: 4,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/h89119/triumph-speed-triple-1200-rs-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/h89119/triumph-speed-triple-1200-rs-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -133,8 +123,7 @@ const motorcycles = [
         stock: 5,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/i89119/ducati-streetfighter-v4-2020-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/i89119/ducati-streetfighter-v4-2020-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -145,8 +134,7 @@ const motorcycles = [
         stock: 3,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/j89119/bmw-m1000rr-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/j89119/bmw-m1000rr-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -157,8 +145,7 @@ const motorcycles = [
         stock: 6,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/k89119/yamaha-mt-10-sp-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/k89119/yamaha-mt-10-sp-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -169,8 +156,7 @@ const motorcycles = [
         stock: 4,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/l89119/honda-cb1000r-black-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/l89119/honda-cb1000r-black-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -181,8 +167,7 @@ const motorcycles = [
         stock: 4,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/m89119/kawasaki-z-h2-se-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/m89119/kawasaki-z-h2-se-2021-lateral/1366_2000.jpg"
+           "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -193,8 +178,7 @@ const motorcycles = [
         stock: 5,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/n89119/aprilia-tuono-v4-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/n89119/aprilia-tuono-v4-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"         
         ]
     },
     {
@@ -205,8 +189,7 @@ const motorcycles = [
         stock: 3,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/o89119/mv-agusta-brutale-1000-rr-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/o89119/mv-agusta-brutale-1000-rr-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -217,8 +200,7 @@ const motorcycles = [
         stock: 6,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/p89119/ducati-monster-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/p89119/ducati-monster-2021-lateral/1366_2000.jpg"
+           "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -229,8 +211,7 @@ const motorcycles = [
         stock: 4,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/q89119/ktm-1290-super-duke-r-evo-2022-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/q89119/ktm-1290-super-duke-r-evo-2022-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     },
     {
@@ -241,8 +222,7 @@ const motorcycles = [
         stock: 3,
         category: "motos",
         thumbnails: [
-            "https://img.remediosdigitales.com/r89119/suzuki-hayabusa-2021-1/1366_2000.jpg",
-            "https://img.remediosdigitales.com/r89119/suzuki-hayabusa-2021-lateral/1366_2000.jpg"
+            "img1.jpg", "img2.jpg"
         ]
     }
 ];
