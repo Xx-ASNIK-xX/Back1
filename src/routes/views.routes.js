@@ -19,11 +19,6 @@ router.get('/products', async (req, res) => {
         }
 
         const result = await ProductModel.paginate({}, options);
-        
-        console.log('Productos y sus imágenes:');
-        result.docs.forEach(product => {
-            console.log(`${product.title}:`, product.thumbnails);
-        });
 
         res.render('products', {
             products: result.docs,
