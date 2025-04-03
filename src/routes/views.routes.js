@@ -7,7 +7,7 @@ const router = Router();
 // Vista de productos con paginación
 router.get('/products', async (req, res) => {
     try {
-        const { limit = 10, page = 1, sort, query } = req.query;
+        const { limit = 10, page = 1, sort } = req.query;
         const options = {
             page: parseInt(page),
             limit: parseInt(limit),
@@ -18,15 +18,12 @@ router.get('/products', async (req, res) => {
             options.sort = { price: sort === 'asc' ? 1 : -1 };
         }
 
-        const filter = {};
-        if (query) {
-            filter.category = query;
-        }
-
-        const result = await ProductModel.paginate(filter, options);
+        const result = await ProductModel.paginate({}, options);
         
-        // Obtener categorías únicas para el filtro
-        const categories = await ProductModel.distinct('category');
+        console.log('Productos y sus imágenes:');
+        result.docs.forEach(product => {
+            console.log(`${product.title}:`, product.thumbnails);
+        });
 
         res.render('products', {
             products: result.docs,
@@ -34,11 +31,9 @@ router.get('/products', async (req, res) => {
             totalPages: result.totalPages,
             hasPrevPage: result.hasPrevPage,
             hasNextPage: result.hasNextPage,
-            prevLink: result.hasPrevPage ? `/products?page=${result.prevPage}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}` : null,
-            nextLink: result.hasNextPage ? `/products?page=${result.nextPage}&limit=${limit}${sort ? `&sort=${sort}` : ''}${query ? `&query=${query}` : ''}` : null,
-            categories,
-            sort,
-            query
+            prevLink: result.hasPrevPage ? `/products?page=${result.prevPage}&limit=${limit}${sort ? `&sort=${sort}` : ''}` : null,
+            nextLink: result.hasNextPage ? `/products?page=${result.nextPage}&limit=${limit}${sort ? `&sort=${sort}` : ''}` : null,
+            sort
         });
     } catch (error) {
         res.status(500).render('error', { error: error.message });

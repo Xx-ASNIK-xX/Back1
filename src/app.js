@@ -1,6 +1,5 @@
 import express from "express";
 import { Server } from "socket.io";
-import { engine } from "express-handlebars";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import path from "path";
@@ -10,6 +9,8 @@ import productsRouter from "./routes/products.routes.js";
 import cartsRouter from "./routes/carts.routes.js";
 import viewsRouter from "./routes/views.routes.js";
 import socketEvents from "./websocket/socket.js";
+import { configureHandlebars } from "./config/handlebars.config.js";
+import imageRoutes from './routes/image.routes.js';
 
 // Configuración de __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -19,51 +20,24 @@ const __dirname = dirname(__filename);
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // Configuración de Handlebars
-app.engine("handlebars", engine({
-    runtimeOptions: {
-        allowProtoPropertiesByDefault: true,
-        allowProtoMethodsByDefault: true,
-    },
-    helpers: {
-        eq: function (a, b) {
-            return a === b;
-        },
-        multiply: function(a, b) {
-            if (!a || !b) return 0;
-            return a * b;
-        },
-        cartTotal: function(products) {
-            if (!Array.isArray(products)) return 0;
-            return products.reduce((total, item) => {
-                if (!item || !item.product || !item.product.price || !item.quantity) return total;
-                return total + (item.product.price * item.quantity);
-            }, 0);
-        },
-        formatPrice: function(price) {
-            return new Intl.NumberFormat('es-CO', { 
-                style: 'currency', 
-                currency: 'COP',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(price);
-        }
-    }
-}));
-app.set("view engine", "handlebars");
+configureHandlebars(app);
 app.set("views", path.join(__dirname, "views"));
 
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
+
+// Configuración de archivos estáticos
+app.use(express.static('src/public'));
 
 // Rutas
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
+app.use('/api/images', imageRoutes);
 
 // Conexión a MongoDB
 try {
