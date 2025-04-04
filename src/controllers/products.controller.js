@@ -1,121 +1,60 @@
-import ProductModel from '../models/product.model.js';
-import dotenv from 'dotenv';
+import ProductService from '../services/product.service.js';
+import Logger from '../utils/logger.js';
+import { ERROR_MESSAGES, HTTP_STATUS } from '../constants/error.constants.js';
 
-dotenv.config();
+const productService = new ProductService();
 
-export const getProducts = async (req, res) => {
+export const getProducts = async (req, res, next) => {
     try {
-        const { 
-            limit = 10, 
-            page = 1, 
-            sort, 
-            category,
-            status 
-        } = req.query;
-
-        const options = {
-            page: parseInt(page),
-            limit: parseInt(limit),
-            lean: true
-        };
-
-        if (sort) {
-            options.sort = { price: sort === 'asc' ? 1 : -1 };
-        }
-
-        // Construir el objeto de filtro
-        const query = {};
-        if (category) query.category = category;
-        if (status !== undefined) query.status = status === 'true';
-
-        const result = await ProductModel.paginate(query, options);
-
-        // Construir los links para navegación
-        const baseUrl = `${req.protocol}://${req.get('host')}/api/products`;
-        const buildUrl = (page) => {
-            const params = new URLSearchParams();
-            params.append('page', page);
-            params.append('limit', limit);
-            if (sort) params.append('sort', sort);
-            if (category) params.append('category', category);
-            if (status !== undefined) params.append('status', status);
-            return `${baseUrl}?${params.toString()}`;
-        };
-
-        res.json({
-            status: 'success',
-            payload: result.docs,
-            totalPages: result.totalPages,
-            prevPage: result.prevPage,
-            nextPage: result.nextPage,
-            page: result.page,
-            hasPrevPage: result.hasPrevPage,
-            hasNextPage: result.hasNextPage,
-            prevLink: result.hasPrevPage ? buildUrl(result.prevPage) : null,
-            nextLink: result.hasNextPage ? buildUrl(result.nextPage) : null
-        });
+        Logger.info('Obteniendo lista de productos');
+        const result = await productService.getProducts(req.query);
+        res.status(HTTP_STATUS.OK).json({ status: 'success', payload: result });
     } catch (error) {
-        console.error('Error en getProducts:', error);
-        res.status(500).json({ 
-            status: 'error', 
-            error: 'Error al obtener los productos' 
-        });
+        Logger.error('Error al obtener productos:', error);
+        next(error);
     }
 };
 
-export const getProductById = async (req, res) => {
+export const getProductById = async (req, res, next) => {
     try {
-        const product = await ProductModel.findById(req.params.pid).lean();
-        if (!product) {
-            return res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
-        }
-        res.json({ status: 'success', payload: product });
+        Logger.info(`Buscando producto con ID: ${req.params.id}`);
+        const product = await productService.getProductById(req.params.id);
+        res.status(HTTP_STATUS.OK).json({ status: 'success', payload: product });
     } catch (error) {
-        console.error('Error en getProductById:', error);
-        res.status(500).json({ status: 'error', error: error.message });
+        Logger.error(`Error al obtener producto ${req.params.id}:`, error);
+        next(error);
     }
 };
 
-export const createProduct = async (req, res) => {
+export const createProduct = async (req, res, next) => {
     try {
-        const newProduct = await ProductModel.create(req.body);
-        res.status(201).json({ status: 'success', payload: newProduct });
+        Logger.info('Creando nuevo producto');
+        const newProduct = await productService.createProduct(req.body);
+        res.status(HTTP_STATUS.CREATED).json({ status: 'success', payload: newProduct });
     } catch (error) {
-        console.error('Error en createProduct:', error);
-        res.status(500).json({ status: 'error', error: error.message });
+        Logger.error('Error al crear producto:', error);
+        next(error);
     }
 };
 
-export const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res, next) => {
     try {
-        const updatedProduct = await ProductModel.findByIdAndUpdate(
-            req.params.pid,
-            req.body,
-            { new: true }
-        ).lean();
-
-        if (!updatedProduct) {
-            return res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
-        }
-
-        res.json({ status: 'success', payload: updatedProduct });
+        Logger.info(`Actualizando producto con ID: ${req.params.id}`);
+        const updatedProduct = await productService.updateProduct(req.params.id, req.body);
+        res.status(HTTP_STATUS.OK).json({ status: 'success', payload: updatedProduct });
     } catch (error) {
-        console.error('Error en updateProduct:', error);
-        res.status(500).json({ status: 'error', error: error.message });
+        Logger.error(`Error al actualizar producto ${req.params.id}:`, error);
+        next(error);
     }
 };
 
-export const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res, next) => {
     try {
-        const deletedProduct = await ProductModel.findByIdAndDelete(req.params.pid).lean();
-        
-        if (!deletedProduct) {
-            return res.status(404).json({ status: 'error', error: 'Producto no encontrado' });
-        }
-
-        res.json({ status: 'success', payload: deletedProduct });
+        Logger.info(`Eliminando producto con ID: ${req.params.id}`);
+        const deletedProduct = await productService.deleteProduct(req.params.id);
+        res.status(HTTP_STATUS.OK).json({ status: 'success', payload: deletedProduct });
     } catch (error) {
-        console.error('Error en deleteProduct:', error);
-        res.status(500).json({ status: 'error', error: error.message });
+        Logger.error(`Error al eliminar producto ${req.params.id}:`, error);
+        next(error);
     }
 };

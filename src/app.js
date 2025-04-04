@@ -11,6 +11,9 @@ import viewsRouter from "./routes/views.routes.js";
 import imageRoutes from './routes/image.routes.js';
 import socketEvents from "./websocket/socket.js";
 import { configureHandlebars } from "./config/handlebars.config.js";
+import handlebars from 'express-handlebars';
+import { errorHandler } from './middlewares/error.middleware.js';
+import Logger from './utils/logger.js';
 
 // Configuración de __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -37,18 +40,22 @@ app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
 app.use('/api/images', imageRoutes);
 
+// Middleware de manejo de errores
+app.use(errorHandler);
+
 // Conexión a MongoDB
-try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Conectado a MongoDB");
-} catch (error) {
-    console.error("Error al conectar a MongoDB:", error);
-    process.exit(1);
-}
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce')
+    .then(() => {
+        Logger.info('Conectado a MongoDB');
+    })
+    .catch(error => {
+        Logger.error('Error al conectar a MongoDB:', error);
+        process.exit(1);
+    });
 
 // Iniciar servidor HTTP
 const httpServer = app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    Logger.info(`Servidor corriendo en http://localhost:${PORT}`);
 });
 
 // Configurar Socket.IO

@@ -43,6 +43,11 @@ src/
 │   └── realtimeproducts.handlebars
 ├── websocket/
 │   └── socket.js
+├── services/          # Nueva capa de servicios
+├── dto/               # Data Transfer Objects
+├── constants/         # Constantes y enumeraciones
+├── utils/             # Utilidades y helpers
+└── middlewares/       # Middlewares personalizados
 └── app.js
 ```
 
@@ -133,18 +138,18 @@ Este proyecto está bajo la Licencia MIT.
   - `countProducts.js`: Estadísticas de productos
   - `listProducts.js`: Lista productos en consola
   - `updateSingleProduct.js`: Actualiza productos individuales
+  - `migrate-data.js`: Migración y actualización de datos entre versiones
 
 - **Images:**
   - `migrateImages.js`: Migra imágenes a GridFS
-  - `updateImages.js`: Actualiza URLs de imágenes
-  - `updateMotorcyclesImages.js`: Actualiza imágenes de motos
   - `updateRemainingBikes.js`: Actualiza imágenes pendientes
+  - `updateLocalImages.js`: Actualiza rutas de imágenes locales
 
 ## 🚀 Instalación
 
 1. Clonar el repositorio
 ```bash
-git clone [URL_DEL_REPOSITORIO]
+git clone [https://github.com/Xx-ASNIK-xX/Back1]
 ```
 
 2. Instalar dependencias
@@ -187,4 +192,59 @@ npm run dev
 5. Crear un Pull Request
 
 ## 📄 Licencia
-Este proyecto está bajo la Licencia MIT. 
+Este proyecto está bajo la Licencia MIT.
+
+## 🏗️ Mejoras Arquitectónicas Implementadas
+
+### 1. Patrón de Capas (N-Layer)
+- **Controllers**: Manejo de peticiones HTTP y respuestas
+- **Services**: Lógica de negocio y coordinación
+- **Managers**: Interacción con la base de datos
+- **DTOs**: Transformación de datos entre capas
+
+### 2. Data Transfer Objects (DTOs)
+- Transformación de datos consistente
+- Separación entre modelo de datos y respuestas API
+- Sanitización de datos sensibles
+- Optimización de respuestas
+
+### 3. Sistema de Logging Centralizado
+- Niveles: INFO, ERROR, WARN, DEBUG
+- Timestamps en cada registro
+- Stack trace en errores
+- Filtrado por ambiente (development/production)
+
+### 4. Manejo de Errores Mejorado
+- Middleware centralizado de errores
+- Errores personalizados por tipo
+- Mensajes de error consistentes
+- Códigos HTTP apropiados
+
+### 5. Validaciones Robustas
+- Middleware de validación por entidad
+- Validación de tipos de datos
+- Validación de IDs de MongoDB
+- Manejo de casos borde
+
+### 6. Constantes y Utilidades
+- Mensajes de error centralizados
+- Códigos HTTP estandarizados
+- Funciones de utilidad reutilizables
+- Configuraciones centralizadas
+
+### 7. Estructura de Carpetas Mejorada
+```
+src/
+├── services/          # Nueva capa de servicios
+├── dto/               # Data Transfer Objects
+├── constants/         # Constantes y enumeraciones
+├── utils/             # Utilidades y helpers
+└── middlewares/       # Middlewares personalizados
+```
+
+Estas mejoras hacen que el código sea:
+- Más mantenible y escalable
+- Más fácil de testear
+- Más robusto y seguro
+- Mejor organizado
+- Más fácil de entender y modificar 

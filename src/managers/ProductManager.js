@@ -1,84 +1,122 @@
-import fs from "fs";
+import ProductModel from '../models/product.model.js';
 
 class ProductManager {
-    constructor(filePath) {
-        this.path = filePath;
-    }
-
-    async getProducts() {
+    async getProducts(options = {}) {
         try {
-            if (!fs.existsSync(this.path)) return [];
-            const data = await fs.promises.readFile(this.path, "utf-8");
-            return data.trim() ? JSON.parse(data) : [];
+            const { limit = 10, page = 1, sort, query = {} } = options;
+            
+            // Asegurarnos de que query sea un objeto válido
+            const filter = {};
+            if (query && typeof query === 'object') {
+                if (query.category) filter.category = query.category;
+                if (query.status !== undefined) filter.status = query.status;
+            }
+
+            const result = await ProductModel.paginate(filter, { 
+                limit, 
+                page, 
+                sort,
+                lean: true 
+            });
+            return result;
         } catch (error) {
-            console.error("Error al obtener productos:", error);
-            return [];
+            throw new Error(`Error al obtener productos: ${error.message}`);
         }
     }
 
     async getProductById(id) {
-        const products = await this.getProducts();
-        return products.find(p => p.id === id) || null;
-    }
-
-    async addProduct(productData) {
         try {
-            const products = await this.getProducts();
-    
-            // Generar un ID único
-            const generateUniqueId = () => {
-                const maxId = products.length ? Math.max(...products.map(p => p.id)) : 0;
-                return maxId + 1;
-            };
-    
-            // Agregar el producto con un ID único
-            const newProduct = {
-                id: generateUniqueId(), // ID único
-                ...productData, // Resto de los campos
-            };
-    
-            products.push(newProduct);
-            await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-            return newProduct;
+            const product = await ProductModel.findById(id).lean();
+            if (!product) {
+                throw new Error('Producto no encontrado');
+            }
+            return product;
         } catch (error) {
-            throw new Error("Error al agregar producto: " + error.message);
+            throw new Error(`Error al obtener producto: ${error.message}`);
         }
     }
 
-    async updateProduct(id, updatedFields) {
-    try {
-        const products = await this.getProducts();
-        const productIndex = products.findIndex(p => p.id === id);
-
-        if (productIndex === -1) {
-            throw new Error("Producto no encontrado");
+    async createProduct(productData) {
+        try {
+            this.validateProductData(productData);
+            const newProduct = await ProductModel.create(productData);
+            return newProduct.toObject();
+        } catch (error) {
+            throw new Error(`Error al crear producto: ${error.message}`);
         }
+    }
 
-        // Actualizar campos sin modificar el ID
-        products[productIndex] = { ...products[productIndex], ...updatedFields, id };
+    async updateProduct(id, data) {
+        try {
+            this.validateProductData(data);
+            const product = await ProductModel.findByIdAndUpdate(
+                id, 
+                data, 
+                { new: true, runValidators: true }
+            ).lean();
+            
+            if (!product) {
+                throw new Error('Producto no encontrado');
+            }
+            return product;
+        } catch (error) {
+            throw new Error(`Error al actualizar producto: ${error.message}`);
+        }
+    }
 
-        await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-        return products[productIndex];
-    } catch (error) {
-        throw new Error("Error al actualizar producto: " + error.message);
+    async deleteProduct(id) {
+        try {
+            const product = await ProductModel.findByIdAndDelete(id).lean();
+            if (!product) {
+                throw new Error('Producto no encontrado');
+            }
+            return product;
+        } catch (error) {
+            throw new Error(`Error al eliminar producto: ${error.message}`);
+        }
+    }
+
+    validateProductData(data) {
+        if (data.price && data.price <= 0) {
+            throw new Error('El precio debe ser mayor a 0');
+        }
+        if (data.stock && data.stock < 0) {
+            throw new Error('El stock no puede ser negativo');
+        }
+        if (data.code && typeof data.code !== 'string') {
+            throw new Error('El código debe ser una cadena de texto');
+        }
+        if (data.title && typeof data.title !== 'string') {
+            throw new Error('El título debe ser una cadena de texto');
+        }
+        if (data.description && typeof data.description !== 'string') {
+            throw new Error('La descripción debe ser una cadena de texto');
+        }
+        if (data.category && typeof data.category !== 'string') {
+            throw new Error('La categoría debe ser una cadena de texto');
+        }
+    }
+
+    async getProductsByCategory(category) {
+        try {
+            return await ProductModel.find({ category }).lean();
+        } catch (error) {
+            throw new Error(`Error al obtener productos por categoría: ${error.message}`);
+        }
+    }
+
+    async searchProducts(query) {
+        try {
+            return await ProductModel.find({
+                $or: [
+                    { title: { $regex: query, $options: 'i' } },
+                    { description: { $regex: query, $options: 'i' } }
+                ]
+            }).lean();
+        } catch (error) {
+            throw new Error(`Error al buscar productos: ${error.message}`);
+        }
     }
 }
 
-async deleteProduct(productId) {
-    try {
-        const products = await this.getProducts();
-        const updatedProducts = products.filter(p => p.id !== productId);
-
-        if (products.length === updatedProducts.length) {
-            throw new Error("Producto no encontrado");
-        }
-
-        await fs.promises.writeFile(this.path, JSON.stringify(updatedProducts, null, 2));
-        return { success: true, message: "Producto eliminado correctamente" };
-    } catch (error) {
-        throw new Error("Error al eliminar producto: " + error.message);
-    }
-}
-}
-
-export default new ProductManager("src/data/products.json");
+export default ProductManager;

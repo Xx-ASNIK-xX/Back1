@@ -59,9 +59,9 @@
                         <td>${{this.product.price}}</td>
                         <td>
                             <div class="input-group" style="width: 120px;">
-                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} - 1)">-</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} - 1)" {{#if (eq this.quantity 1)}}disabled{{/if}}>-</button>
                                 <input type="number" class="form-control text-center" value="{{this.quantity}}" min="1" max="{{this.product.stock}}" onchange="updateQuantity('{{this.product._id}}', this.value)">
-                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)">+</button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)" {{#if (eq this.quantity this.product.stock)}}disabled{{/if}}>+</button>
                             </div>
                         </td>
                         <td>{{this.product.stock}}</td>
@@ -151,11 +151,11 @@
                 } else {
                     const errorData = await response.json();
                     Swal.fire({
-                        title: 'Error',
-                        text: errorData.error || 'Error al actualizar la cantidad',
-                        icon: 'error',
-                        confirmButtonText: 'Aceptar',
-                        confirmButtonColor: '#dc3545'
+                        title: 'Stock Insuficiente',
+                        text: 'No hay suficiente stock disponible para la cantidad solicitada',
+                        icon: 'warning',
+                        confirmButtonText: 'Entendido',
+                        confirmButtonColor: '#ffc107'
                     });
                 }
             } catch (error) {

@@ -1,19 +1,26 @@
 import { Router } from 'express';
-import * as productController from '../controllers/products.controller.js';
+import { 
+    getProducts, 
+    getProductById, 
+    createProduct, 
+    updateProduct, 
+    deleteProduct 
+} from '../controllers/products.controller.js';
+import { validateProduct, validateId } from '../middlewares/validation.middleware.js';
 
 const router = Router();
 
 // Rutas GET
-router.get('/', productController.getProducts);
-router.get('/:pid', productController.getProductById);
+router.get('/', getProducts);
+router.get('/:id', validateId, getProductById);
 
 // Ruta POST para crear un nuevo producto
-router.post('/', productController.createProduct);
+router.post('/', validateProduct, createProduct);
 
 // Ruta PUT para actualizar un producto
-router.put('/:pid', productController.updateProduct);
+router.put('/:id', validateId, validateProduct, updateProduct);
 
 // Ruta DELETE para eliminar un producto
-router.delete('/:pid', productController.deleteProduct);
+router.delete('/:id', validateId, deleteProduct);
 
 export default router;
