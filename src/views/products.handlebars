@@ -53,6 +53,13 @@
         <div class="row mb-4">
             <div class="col">
                 <form id="filterForm" class="d-flex gap-3 align-items-center">
+                    <select name="category" class="form-select" style="width: auto;">
+                        <option value="">Todas las categorías</option>
+                        {{#each categories}}
+                        <option value="{{this}}" {{#if (eq ../selectedCategory this)}}selected{{/if}}>{{this}}</option>
+                        {{/each}}
+                    </select>
+
                     <select name="sort" class="form-select" style="width: auto;">
                         <option value="">Sin ordenar</option>
                         <option value="asc" {{#if (eq sort "asc")}}selected{{/if}}>Precio: Menor a Mayor</option>
@@ -90,16 +97,25 @@
                         <h5 class="card-title">{{title}}</h5>
                         <p class="card-text">{{description}}</p>
                         <p class="card-text"><strong>Precio: ${{price}}</strong></p>
-                        <p class="card-text">Stock: {{stock}}</p>
                         <p class="card-text">
-                            <span class="badge {{#if status}}bg-success{{else}}bg-danger{{/if}}">
-                                {{#if status}}Disponible{{else}}No disponible{{/if}}
+                            Stock: <span class="{{#if (eq stock 0)}}text-danger{{/if}}">{{stock}}</span>
+                        </p>
+                        <p class="card-text">
+                            <span class="badge {{#if (and status (gt stock 0))}}bg-success{{else}}bg-danger{{/if}}">
+                                {{#if (and status (gt stock 0))}}Disponible{{else}}No disponible{{/if}}
                             </span>
                         </p>
                         <div class="d-flex justify-content-between">
                             <a href="/products/{{_id}}" class="btn btn-info">Ver Detalles</a>
-                            <button onclick="addToCart('{{_id}}')" class="btn btn-success" {{#unless status}}disabled{{/unless}}>
-                                Agregar al Carrito
+                            <button onclick="addToCart('{{_id}}', {{stock}})" 
+                                    class="btn btn-success" 
+                                    {{#unless (and status (gt stock 0))}}disabled{{/unless}}
+                                    data-stock="{{stock}}">
+                                {{#if (gt stock 0)}}
+                                    Agregar al Carrito
+                                {{else}}
+                                    Sin Stock
+                                {{/if}}
                             </button>
                         </div>
                     </div>
@@ -112,21 +128,21 @@
         <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Page navigation">
                 <ul class="pagination">
-                    {{#if hasPrevPage}}
+                    {{#if pagination.hasPrevPage}}
                     <li class="page-item">
-                        <a class="page-link" href="{{prevLink}}" aria-label="Previous">
+                        <a class="page-link" href="{{pagination.prevLink}}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     {{/if}}
                     
                     <li class="page-item active">
-                        <span class="page-link">Página {{page}} de {{totalPages}}</span>
+                        <span class="page-link">Página {{pagination.page}} de {{pagination.totalPages}}</span>
                     </li>
                     
-                    {{#if hasNextPage}}
+                    {{#if pagination.hasNextPage}}
                     <li class="page-item">
-                        <a class="page-link" href="{{nextLink}}" aria-label="Next">
+                        <a class="page-link" href="{{pagination.nextLink}}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
@@ -145,9 +161,10 @@
             window.location.href = '/products';
         }
 
-        async function addToCart(productId) {
+        async function addToCart(productId, stockDisponible) {
             try {
                 let cartId = localStorage.getItem('cartId');
+                let currentQuantity = 0;
                 
                 if (!cartId) {
                     const response = await fetch('/api/carts', {
@@ -159,6 +176,26 @@
                     const data = await response.json();
                     cartId = data.payload._id;
                     localStorage.setItem('cartId', cartId);
+                } else {
+                    // Solo verificar el carrito si ya existe
+                    try {
+                        const cartResponse = await fetch(`/api/carts/${cartId}`);
+                        const cartData = await cartResponse.json();
+                        
+                        if (cartData.status === 'success' && cartData.payload && cartData.payload.products) {
+                            const productInCart = cartData.payload.products.find(p => p.product && p.product._id === productId);
+                            currentQuantity = productInCart ? productInCart.quantity : 0;
+                        }
+                    } catch (error) {
+                        console.error('Error al verificar el carrito:', error);
+                        // Si hay error al verificar el carrito, asumimos cantidad 0
+                        currentQuantity = 0;
+                    }
+                }
+
+                // Verificar si hay suficiente stock
+                if (currentQuantity >= stockDisponible) {
+                    throw new Error('No hay suficiente stock disponible');
                 }
 
                 const response = await fetch(`/api/carts/${cartId}/products/${productId}`, {
@@ -172,6 +209,15 @@
                     toastBody.parentElement.classList.add('bg-success', 'text-white');
                     toastBody.textContent = '¡Producto agregado al carrito exitosamente!';
                     toast.show();
+
+                    // Si llegamos al límite de stock, deshabilitamos el botón
+                    if (currentQuantity + 1 >= stockDisponible) {
+                        const button = document.querySelector(`button[onclick="addToCart('${productId}', ${stockDisponible})"]`);
+                        if (button) {
+                            button.disabled = true;
+                            button.textContent = 'Sin Stock';
+                        }
+                    }
                 } else {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Error al agregar al carrito');
@@ -188,17 +234,49 @@
         }
 
         async function viewCart() {
-            const cartId = localStorage.getItem('cartId');
-            if (!cartId) {
-                // Limpiar clases anteriores
+            try {
+                const cartId = localStorage.getItem('cartId');
+                if (!cartId) {
+                    // Crear un nuevo carrito si no existe
+                    const response = await fetch('/api/carts', {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Error al crear el carrito');
+                    }
+                    
+                    const data = await response.json();
+                    localStorage.setItem('cartId', data.payload._id);
+                    window.location.href = `/carts/${data.payload._id}`;
+                    return;
+                }
+
+                // Verificar si el carrito existe en el servidor
+                try {
+                    const checkResponse = await fetch(`/api/carts/${cartId}`);
+                    if (!checkResponse.ok) {
+                        // Si el carrito no existe, crear uno nuevo
+                        localStorage.removeItem('cartId');
+                        viewCart(); // Llamar recursivamente para crear nuevo carrito
+                        return;
+                    }
+                    // Si el carrito existe, redirigir
+                    window.location.href = `/carts/${cartId}`;
+                } catch (error) {
+                    console.error('Error al verificar el carrito:', error);
+                    toastBody.parentElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white', 'text-dark');
+                    toastBody.parentElement.classList.add('bg-danger', 'text-white');
+                    toastBody.textContent = 'Error al acceder al carrito. Por favor, intenta de nuevo.';
+                    toast.show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
                 toastBody.parentElement.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-white', 'text-dark');
-                // Agregar nuevas clases
-                toastBody.parentElement.classList.add('bg-warning', 'text-dark');
-                toastBody.textContent = 'No hay un carrito creado aún. Agrega productos primero.';
+                toastBody.parentElement.classList.add('bg-danger', 'text-white');
+                toastBody.textContent = error.message || 'Error al acceder al carrito';
                 toast.show();
-                return;
             }
-            window.location.href = `/carts/${cartId}`;
         }
 
         // Mantener los filtros seleccionados en el formulario
@@ -213,6 +291,27 @@
             
             window.location.href = `/products?${params.toString()}`;
         });
+
+        // Función para actualizar los filtros en los enlaces de paginación
+        function updatePaginationLinks() {
+            const params = new URLSearchParams(window.location.search);
+            const links = document.querySelectorAll('.pagination a');
+            
+            links.forEach(link => {
+                const url = new URL(link.href);
+                const pageParams = new URLSearchParams(url.search);
+                
+                // Mantener los filtros actuales
+                if (params.get('category')) pageParams.set('category', params.get('category'));
+                if (params.get('sort')) pageParams.set('sort', params.get('sort'));
+                if (params.get('limit')) pageParams.set('limit', params.get('limit'));
+                
+                link.href = `${url.pathname}?${pageParams.toString()}`;
+            });
+        }
+
+        // Actualizar enlaces de paginación cuando se carga la página
+        document.addEventListener('DOMContentLoaded', updatePaginationLinks);
     </script>
 </body>
 </html> 

@@ -1,5 +1,6 @@
 import ProductManagerClass from '../managers/ProductManager.js';
 import CartModel from '../models/cart.model.js';
+import Logger from '../utils/logger.js';
 
 const productManager = new ProductManagerClass();
 
@@ -34,8 +35,29 @@ const getProducts = async (req, res) => {
 
         const result = await productManager.getProducts(options);
         
+        // Obtener todas las categorías únicas
+        const allProducts = await productManager.getProducts({ limit: 1000 });
+        const categories = [...new Set(allProducts.docs.map(product => product.category))];
+        
+        // Construir la base de los parámetros de consulta
+        const queryParams = new URLSearchParams();
+        if (limit) queryParams.set('limit', limit);
+        if (sort) queryParams.set('sort', sort);
+        if (category) queryParams.set('category', category);
+
+        // Función para construir enlaces de paginación
+        const buildPageLink = (pageNum) => {
+            const params = new URLSearchParams(queryParams);
+            params.set('page', pageNum);
+            return `/products?${params.toString()}`;
+        };
+        
         res.render('products', {
             products: result.docs,
+            categories,
+            selectedCategory: category,
+            sort,
+            limit,
             pagination: {
                 totalPages: result.totalPages,
                 prevPage: result.prevPage,
@@ -43,12 +65,12 @@ const getProducts = async (req, res) => {
                 page: result.page,
                 hasPrevPage: result.hasPrevPage,
                 hasNextPage: result.hasNextPage,
-                prevLink: result.hasPrevPage ? `/products?page=${result.prevPage}&limit=${limit}&sort=${sort || ''}&category=${category || ''}` : null,
-                nextLink: result.hasNextPage ? `/products?page=${result.nextPage}&limit=${limit}&sort=${sort || ''}&category=${category || ''}` : null
+                prevLink: result.hasPrevPage ? buildPageLink(result.prevPage) : null,
+                nextLink: result.hasNextPage ? buildPageLink(result.nextPage) : null
             }
         });
     } catch (error) {
-        console.error('Error al cargar la vista de productos:', error);
+        Logger.error('Error al cargar la vista de productos:', error);
         res.status(500).render('error', { error: 'Error al cargar los productos' });
     }
 };
@@ -56,10 +78,18 @@ const getProducts = async (req, res) => {
 const getProductDetail = async (req, res) => {
     try {
         const { pid } = req.params;
+        Logger.info(`Buscando producto con ID: ${pid}`);
+        
         const product = await productManager.getProductById(pid);
-        res.render('productDetail', { product });
+        if (!product) {
+            Logger.warn(`Producto no encontrado con ID: ${pid}`);
+            return res.status(404).render('error', { error: 'Producto no encontrado' });
+        }
+
+        Logger.info(`Producto encontrado: ${product.title}`);
+        res.render('product-detail', { product });
     } catch (error) {
-        console.error('Error al cargar el detalle del producto:', error);
+        Logger.error('Error al cargar el detalle del producto:', error);
         res.status(500).render('error', { error: 'Error al cargar el detalle del producto' });
     }
 };
@@ -67,11 +97,53 @@ const getProductDetail = async (req, res) => {
 const getCart = async (req, res) => {
     try {
         const { cid } = req.params;
+        console.log('Buscando carrito con ID:', cid);
+        
         const cart = await CartModel.findById(cid).populate('products.product');
+        console.log('Carrito encontrado:', cart);
+        
         if (!cart) {
+            console.log('Carrito no encontrado');
             return res.status(404).render('error', { error: 'Carrito no encontrado' });
         }
-        res.render('cart', { cart });
+
+        // Asegurarse de que cart.products existe y es un array
+        if (!cart.products) {
+            cart.products = [];
+        }
+
+        // Convertir el documento Mongoose a un objeto plano
+        const cartData = {
+            _id: cart._id,
+            products: cart.products.map(item => ({
+                product: item.product ? {
+                    _id: item.product._id,
+                    title: item.product.title,
+                    price: item.product.price,
+                    code: item.product.code,
+                    stock: item.product.stock,
+                    thumbnails: item.product.thumbnails
+                } : null,
+                quantity: item.quantity
+            }))
+        };
+
+        console.log('Datos del carrito procesados:', cartData);
+        
+        res.render('cart', { 
+            cart: cartData,
+            helpers: {
+                multiply: function(a, b) { return a * b; },
+                cartTotal: function(products) {
+                    return products.reduce((total, item) => {
+                        if (item.product) {
+                            return total + (item.product.price * item.quantity);
+                        }
+                        return total;
+                    }, 0);
+                }
+            }
+        });
     } catch (error) {
         console.error('Error al cargar el carrito:', error);
         res.status(500).render('error', { error: 'Error al cargar el carrito' });

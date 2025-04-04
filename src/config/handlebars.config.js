@@ -1,4 +1,4 @@
-import { engine } from 'express-handlebars';
+import handlebars from 'express-handlebars';
 
 export const handlebarsConfig = {
     runtimeOptions: {
@@ -32,7 +32,23 @@ export const handlebarsConfig = {
 };
 
 export const configureHandlebars = (app) => {
-    app.engine("handlebars", engine(handlebarsConfig));
-    app.set("view engine", "handlebars");
-    app.set("views", "./src/views");
+    app.engine('handlebars', handlebars.engine({
+        helpers: {
+            eq: (a, b) => a === b,
+            gt: (a, b) => a > b,
+            lt: (a, b) => a < b,
+            and: (a, b) => a && b,
+            multiply: (a, b) => a * b,
+            cartTotal: (products) => {
+                return products.reduce((total, item) => {
+                    if (item.product) {
+                        return total + (item.product.price * item.quantity);
+                    }
+                    return total;
+                }, 0);
+            }
+        }
+    }));
+    app.set('view engine', 'handlebars');
+    app.set('views', './src/views');
 }; 
