@@ -42,4 +42,14 @@ export const validateId = (req, res, next) => {
         throw new ValidationError('ID inválido');
     }
     next();
+};
+
+export const validateStock = (req, res, next) => {
+    const { stock } = req.body;
+
+    if (typeof stock !== 'number' || stock < 0) {
+        throw new ValidationError('El stock debe ser un número no negativo');
+    }
+
+    next();
 }; 

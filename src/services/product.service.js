@@ -45,6 +45,11 @@ class ProductService {
         const products = await this.productManager.searchProducts(query);
         return products.map(product => ProductDTO.toResponse(product));
     }
+
+    async updateStock(id, stock) {
+        const updatedProduct = await this.productManager.updateStock(id, stock);
+        return ProductDTO.toResponse(updatedProduct);
+    }
 }
 
 export default ProductService; 

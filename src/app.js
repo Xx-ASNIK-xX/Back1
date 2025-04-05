@@ -62,4 +62,4 @@ const httpServer = app.listen(PORT, () => {
 const io = new Server(httpServer);
 socketEvents(io);
 
-export default app;
+export { app as default, io };

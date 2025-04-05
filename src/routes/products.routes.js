@@ -4,9 +4,10 @@ import {
     getProductById, 
     createProduct, 
     updateProduct, 
-    deleteProduct 
+    deleteProduct,
+    updateStock 
 } from '../controllers/products.controller.js';
-import { validateProduct, validateId } from '../middlewares/validation.middleware.js';
+import { validateProduct, validateId, validateStock } from '../middlewares/validation.middleware.js';
 
 const router = Router();
 
@@ -19,6 +20,9 @@ router.post('/', validateProduct, createProduct);
 
 // Ruta PUT para actualizar un producto
 router.put('/:id', validateId, validateProduct, updateProduct);
+
+// Ruta para actualizar el stock de un producto
+router.put('/:id/stock', validateId, validateStock, updateStock);
 
 // Ruta DELETE para eliminar un producto
 router.delete('/:id', validateId, deleteProduct);

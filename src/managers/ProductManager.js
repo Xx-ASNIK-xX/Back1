@@ -117,6 +117,28 @@ class ProductManager {
             throw new Error(`Error al buscar productos: ${error.message}`);
         }
     }
+
+    async updateStock(id, newStock) {
+        try {
+            if (newStock < 0) {
+                throw new Error('El stock no puede ser negativo');
+            }
+
+            const product = await ProductModel.findByIdAndUpdate(
+                id,
+                { stock: newStock },
+                { new: true, runValidators: true }
+            ).lean();
+
+            if (!product) {
+                throw new Error('Producto no encontrado');
+            }
+
+            return product;
+        } catch (error) {
+            throw new Error(`Error al actualizar stock: ${error.message}`);
+        }
+    }
 }
 
 export default ProductManager;
