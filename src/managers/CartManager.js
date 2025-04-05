@@ -273,6 +273,55 @@ class CartManager {
             throw new Error(`Error al vaciar el carrito: ${error.message}`);
         }
     }
+
+    async updateCart(cartId, products) {
+        try {
+            const cart = await CartModel.findById(cartId);
+            if (!cart) {
+                throw new Error('Carrito no encontrado');
+            }
+
+            // Restaurar el stock de los productos actuales
+            for (const item of cart.products) {
+                const product = await ProductModel.findById(item.product);
+                if (product) {
+                    product.stock += item.quantity;
+                    await product.save();
+                    
+                    io.emit('stockUpdate', {
+                        productId: product._id,
+                        stock: product.stock
+                    });
+                }
+            }
+
+            // Validar y actualizar el stock de los nuevos productos
+            for (const item of products) {
+                const product = await ProductModel.findById(item.product);
+                if (!product) {
+                    throw new Error(`Producto ${item.product} no encontrado`);
+                }
+                if (product.stock < item.quantity) {
+                    throw new Error(`Stock insuficiente para el producto ${product.title}`);
+                }
+                product.stock -= item.quantity;
+                await product.save();
+                
+                io.emit('stockUpdate', {
+                    productId: product._id,
+                    stock: product.stock
+                });
+            }
+
+            // Actualizar el carrito con los nuevos productos
+            cart.products = products;
+            await cart.save();
+
+            return await this.getCartById(cartId);
+        } catch (error) {
+            throw new Error(`Error al actualizar carrito: ${error.message}`);
+        }
+    }
 }
 
 export default CartManager;

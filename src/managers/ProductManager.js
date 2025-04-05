@@ -3,19 +3,35 @@ import ProductModel from '../models/product.model.js';
 class ProductManager {
     async getProducts(options = {}) {
         try {
-            const { limit = 10, page = 1, sort, query = {} } = options;
+            const { limit = 10, page = 1, sort, category, status, query } = options;
             
-            // Asegurarnos de que query sea un objeto válido
+            // Construir el filtro
             const filter = {};
-            if (query && typeof query === 'object') {
-                if (query.category) filter.category = query.category;
-                if (query.status !== undefined) filter.status = query.status;
+            
+            // Si hay una query de búsqueda
+            if (query) {
+                filter.$or = [
+                    { title: { $regex: query, $options: 'i' } },
+                    { description: { $regex: query, $options: 'i' } }
+                ];
+            }
+            
+            // Aplicar filtros adicionales
+            if (category) filter.category = category;
+            if (status !== undefined) filter.status = status;
+
+            // Construir las opciones de ordenamiento
+            const sortOptions = {};
+            if (sort === 'asc') {
+                sortOptions.price = 1;
+            } else if (sort === 'desc') {
+                sortOptions.price = -1;
             }
 
             const result = await ProductModel.paginate(filter, { 
                 limit, 
-                page, 
-                sort,
+                page,
+                sort: sortOptions,
                 lean: true 
             });
             return result;

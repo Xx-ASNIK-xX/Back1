@@ -5,7 +5,8 @@ import {
     createCart, 
     addProductToCart, 
     removeProductFromCart, 
-    updateProductQuantity, 
+    updateProductQuantity,
+    updateCart, 
     clearCart,
     deleteCart
 } from "../controllers/carts.controller.js";
@@ -18,6 +19,7 @@ router.post("/", createCart);
 router.post("/:cid/products/:pid", addProductToCart);
 router.delete("/:cid/products/:pid", removeProductFromCart);
 router.put("/:cid/products/:pid", updateProductQuantity);
+router.put("/:cid", updateCart);
 router.delete("/:cid", clearCart);
 router.delete("/:cid/delete", deleteCart);
 

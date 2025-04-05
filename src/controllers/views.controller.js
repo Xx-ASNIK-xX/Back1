@@ -25,12 +25,13 @@ const getRealTimeProductsView = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
-        const { limit = 10, page = 1, sort, category } = req.query;
+        const { limit = 10, page = 1, sort, category, query } = req.query;
         const options = {
             limit: parseInt(limit),
             page: parseInt(page),
             sort: sort ? { price: sort === 'asc' ? 1 : -1 } : undefined,
-            query: category ? { category } : {}
+            category,
+            query
         };
 
         const result = await productManager.getProducts(options);
@@ -44,6 +45,7 @@ const getProducts = async (req, res) => {
         if (limit) queryParams.set('limit', limit);
         if (sort) queryParams.set('sort', sort);
         if (category) queryParams.set('category', category);
+        if (query) queryParams.set('query', query);
 
         // Función para construir enlaces de paginación
         const buildPageLink = (pageNum) => {
@@ -56,6 +58,7 @@ const getProducts = async (req, res) => {
             products: result.docs,
             categories,
             selectedCategory: category,
+            searchQuery: query,
             sort,
             limit,
             pagination: {

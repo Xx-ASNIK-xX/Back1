@@ -54,6 +54,13 @@
         <div class="row mb-4">
             <div class="col">
                 <form id="filterForm" class="d-flex gap-3 align-items-center">
+                    <input type="text" 
+                           name="query" 
+                           class="form-control" 
+                           placeholder="Buscar productos..." 
+                           value="{{searchQuery}}"
+                           style="width: auto;">
+
                     <select name="category" class="form-select" style="width: auto;">
                         <option value="">Todas las categorías</option>
                         {{#each categories}}

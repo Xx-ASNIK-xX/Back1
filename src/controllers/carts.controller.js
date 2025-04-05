@@ -143,3 +143,22 @@ export const deleteCart = async (req, res) => {
         res.status(400).json({ status: 'error', error: error.message });
     }
 };
+
+export const updateCart = async (req, res, next) => {
+    try {
+        const { cid } = req.params;
+        const { products } = req.body;
+
+        if (!Array.isArray(products)) {
+            return res.status(400).json({ 
+                status: 'error', 
+                error: 'El campo products debe ser un array' 
+            });
+        }
+
+        const updatedCart = await cartManager.updateCart(cid, products);
+        res.json({ status: 'success', payload: updatedCart });
+    } catch (error) {
+        next(error);
+    }
+};
