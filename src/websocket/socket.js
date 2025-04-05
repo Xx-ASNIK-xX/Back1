@@ -13,11 +13,22 @@ const socketEvents = (io) => {
             socket.on('new-product', async (data) => {
                 try {
                     const newProduct = await ProductModel.create(data);
-                    const updatedProducts = await ProductModel.find().lean();
-                    io.emit('products', updatedProducts);
+                    io.emit('productCreated', newProduct);
                 } catch (error) {
                     console.error('Error al crear nuevo producto:', error);
                     socket.emit('error', { message: 'Error al crear el producto' });
+                }
+            });
+
+            // Manejar evento de actualización de producto
+            socket.on('update-product', async (data) => {
+                try {
+                    const { id, ...updateData } = data;
+                    const updatedProduct = await ProductModel.findByIdAndUpdate(id, updateData, { new: true }).lean();
+                    io.emit('productUpdated', updatedProduct);
+                } catch (error) {
+                    console.error('Error al actualizar producto:', error);
+                    socket.emit('error', { message: 'Error al actualizar el producto' });
                 }
             });
 
@@ -25,8 +36,7 @@ const socketEvents = (io) => {
             socket.on('delete-product', async (productId) => {
                 try {
                     await ProductModel.findByIdAndDelete(productId);
-                    const updatedProducts = await ProductModel.find().lean();
-                    io.emit('products', updatedProducts);
+                    io.emit('productDeleted', productId);
                 } catch (error) {
                     console.error('Error al eliminar producto:', error);
                     socket.emit('error', { message: 'Error al eliminar el producto' });

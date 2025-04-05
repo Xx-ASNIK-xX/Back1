@@ -60,8 +60,8 @@
                         <td>
                             <div class="input-group" style="width: 120px;">
                                 <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} - 1)" {{#if (eq this.quantity 1)}}disabled{{/if}}>-</button>
-                                <input type="number" class="form-control text-center" value="{{this.quantity}}" min="1" max="{{this.product.stock}}" onchange="updateQuantity('{{this.product._id}}', this.value)">
-                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)" {{#if (eq this.quantity this.product.stock)}}disabled{{/if}}>+</button>
+                                <input type="number" class="form-control text-center" value="{{this.quantity}}" min="1" max="{{add this.quantity this.product.stock}}" onchange="updateQuantity('{{this.product._id}}', this.value)">
+                                <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity('{{this.product._id}}', {{this.quantity}} + 1)" {{#if (eq this.product.stock 0)}}disabled{{/if}}>+</button>
                             </div>
                         </td>
                         <td>{{this.product.stock}}</td>

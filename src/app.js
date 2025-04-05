@@ -28,7 +28,7 @@ const PORT = process.env.PORT || 8080;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static("./src/public"));
+app.use(express.static(path.join(process.cwd(), "public")));
 
 // Configurar Handlebars
 configureHandlebars(app);

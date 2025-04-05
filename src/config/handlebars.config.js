@@ -27,6 +27,9 @@ export const handlebarsConfig = {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(price);
+        },
+        json: function(context) {
+            return JSON.stringify(context);
         }
     }
 };
@@ -46,7 +49,8 @@ export const configureHandlebars = (app) => {
                     }
                     return total;
                 }, 0);
-            }
+            },
+            json: (context) => JSON.stringify(context)
         }
     }));
     app.set('view engine', 'handlebars');

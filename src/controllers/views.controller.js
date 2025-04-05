@@ -144,7 +144,8 @@ const getCart = async (req, res) => {
                         }
                         return total;
                     }, 0);
-                }
+                },
+                add: function(a, b) { return a + b; }
             }
         });
     } catch (error) {
