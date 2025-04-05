@@ -198,9 +198,45 @@ Este proyecto está bajo la Licencia MIT.
 
 ### 1. Patrón de Capas (N-Layer)
 - **Controllers**: Manejo de peticiones HTTP y respuestas
-- **Services**: Lógica de negocio y coordinación
-- **Managers**: Interacción con la base de datos
-- **DTOs**: Transformación de datos entre capas
+
+### 🎨 Últimas Mejoras Implementadas
+
+#### Sistema de Notificaciones Mejorado
+- Implementación de SweetAlert2 para notificaciones más atractivas
+- Animaciones fluidas y profesionales
+- Temporizadores personalizados para mejor experiencia de usuario
+- Barras de progreso en notificaciones
+- Notificaciones no intrusivas y auto-dismissibles
+
+#### Gestión de Imágenes Mejorada
+- Límite de 2 imágenes por producto
+- Vista previa de imágenes antes de subir
+- Validación de tamaño (máximo 5MB)
+- Validación de tipo de archivo (solo imágenes)
+- Capacidad de eliminar imágenes antes de subir
+- Placeholder visual para agregar más imágenes
+
+#### Mejoras en la Interfaz de Usuario
+- Animaciones suaves en acciones CRUD
+- Confirmaciones visuales para acciones importantes
+- Feedback inmediato al usuario
+- Integración con Font Awesome para iconografía
+- Diseño responsive y moderno
+- Mensajes de error más descriptivos y amigables
+
+#### Sistema de Validaciones
+- Validación en tiempo real de formularios
+- Mensajes de error específicos y claros
+- Prevención de duplicados en códigos de producto
+- Validación de tipos de datos y formatos
+- Manejo robusto de errores
+
+#### Optimizaciones de Rendimiento
+- Carga asíncrona de imágenes
+- Optimización de llamadas al servidor
+- Reducción de recargas innecesarias
+- Mejor manejo de estado en tiempo real
+- Cacheo eficiente de recursos
 
 ### 2. Data Transfer Objects (DTOs)
 - Transformación de datos consistente

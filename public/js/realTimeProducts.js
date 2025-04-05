@@ -161,10 +161,7 @@ createProductForm.addEventListener('submit', async (e) => {
     console.log('Datos del producto a crear:', productData);
 
     try {
-        // Enviar evento a Socket.IO
-        socket.emit('new-product', productData);
-        
-        // También enviar por HTTP para mantener la consistencia
+        // Enviar solo por HTTP
         const response = await fetch('/api/products', {
             method: 'POST',
             headers: {
@@ -172,33 +169,22 @@ createProductForm.addEventListener('submit', async (e) => {
             },
             body: JSON.stringify(productData)
         });
-        console.log('Respuesta del servidor:', response);
 
-        if (response.ok) {
-            createProductForm.reset();
-            uploadedImages = [];
-            updateImagePreview();
-            await Swal.fire({
-                title: '¡Producto creado!',
-                text: 'El producto ha sido creado exitosamente.',
-                icon: 'success',
-                confirmButtonColor: '#28a745'
-            });
-        } else {
+        if (!response.ok) {
             const error = await response.json();
-            console.error('Error al crear producto:', error);
-            await Swal.fire({
-                title: 'Error',
-                text: error.message || 'Error al crear el producto',
-                icon: 'error',
-                confirmButtonColor: '#dc3545'
-            });
+            throw new Error(error.message || 'Error al crear el producto');
         }
+
+        // Limpiar el formulario después de una creación exitosa
+        createProductForm.reset();
+        uploadedImages = [];
+        updateImagePreview();
+
     } catch (error) {
         console.error('Error al crear producto:', error);
         await Swal.fire({
             title: 'Error',
-            text: 'Error al crear el producto',
+            text: error.message || 'Error al crear el producto',
             icon: 'error',
             confirmButtonColor: '#dc3545'
         });
@@ -437,35 +423,14 @@ async function deleteProduct(id) {
 
     if (result.isConfirmed) {
         try {
-            // Enviar evento a Socket.IO
+            // Enviar evento a Socket.IO y esperar la respuesta HTTP
             socket.emit('delete-product', id);
-            
-            // También enviar por HTTP para mantener la consistencia
-            const response = await fetch(`/api/products/${id}`, {
+            await fetch(`/api/products/${id}`, {
                 method: 'DELETE'
             });
-            console.log('Respuesta del servidor:', response);
-
-            if (response.ok) {
-                await Swal.fire({
-                    title: '¡Eliminado!',
-                    text: 'El producto ha sido eliminado exitosamente.',
-                    icon: 'success',
-                    confirmButtonColor: '#28a745'
-                });
-            } else {
-                const error = await response.json();
-                console.error('Error al eliminar producto:', error);
-                await Swal.fire({
-                    title: 'Error',
-                    text: error.message || 'Error al eliminar el producto',
-                    icon: 'error',
-                    confirmButtonColor: '#dc3545'
-                });
-            }
         } catch (error) {
             console.error('Error al eliminar producto:', error);
-            await Swal.fire({
+            Swal.fire({
                 title: 'Error',
                 text: 'Error al eliminar el producto',
                 icon: 'error',
@@ -508,26 +473,70 @@ function showNotification(message, type = 'info') {
 // Escuchar eventos de Socket.IO
 socket.on('productCreated', (product) => {
     console.log('Evento productCreated recibido:', product);
-    showNotification('Nuevo producto creado', 'success');
-    location.reload();
+    Swal.fire({
+        title: '¡Producto creado!',
+        text: 'El producto ha sido creado exitosamente',
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    }).then(() => {
+        location.reload();
+    });
 });
 
 socket.on('productUpdated', (product) => {
     console.log('Evento productUpdated recibido:', product);
-    showNotification('Producto actualizado', 'success');
-    location.reload();
+    Swal.fire({
+        title: '¡Actualizado!',
+        text: 'El producto ha sido actualizado exitosamente',
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    }).then(() => {
+        location.reload();
+    });
 });
 
 socket.on('productDeleted', (productId) => {
     console.log('Evento productDeleted recibido:', productId);
-    showNotification('Producto eliminado', 'success');
-    location.reload();
+    Swal.fire({
+        title: '¡Eliminado!',
+        text: 'El producto ha sido eliminado exitosamente',
+        icon: 'success',
+        confirmButtonColor: '#28a745',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    }).then(() => {
+        location.reload();
+    });
 });
 
 // Escuchar errores del servidor
 socket.on('error', (error) => {
     console.error('Error del servidor:', error);
-    showNotification(error.message || 'Error del servidor', 'error');
+    Swal.fire({
+        title: 'Error',
+        text: error.message || 'Error del servidor',
+        icon: 'error',
+        confirmButtonColor: '#dc3545'
+    });
 });
 
 function createImagePreview(file, index) {

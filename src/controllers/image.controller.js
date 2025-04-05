@@ -1,26 +1,20 @@
 import imageModel from '../models/image.model.js';
 
-export const uploadImage = async (req, res) => {
+export const uploadImage = async (file) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({ error: 'No se proporcionó ninguna imagen' });
-        }
-
-        const imageId = await imageModel.uploadImage(req.file);
-        res.json({ 
-            success: true, 
-            imageId: imageId.toString(),
-            message: 'Imagen subida exitosamente' 
-        });
+        const imageId = await imageModel.uploadImage(file);
+        return imageId;
     } catch (error) {
         console.error('Error al subir la imagen:', error);
-        res.status(500).json({ error: 'Error al subir la imagen' });
+        throw error;
     }
 };
 
 export const getImage = async (req, res) => {
     try {
         const imageStream = await imageModel.getImage(req.params.imageId);
+        // Configurar headers para la imagen
+        res.set('Content-Type', 'image/jpeg');
         imageStream.pipe(res);
     } catch (error) {
         console.error('Error al obtener la imagen:', error);
